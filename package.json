@@ -2,7 +2,7 @@
   "name": "twentytwo-app",
   "version": "3.4.8",
   "description": "Angular node/express mongodb app(new instagram)",
-  "main": "twentytweoserver.js",
+  "main": "twentytwo.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node twentytwo",
@@ -15,7 +15,12 @@
   "author": "Abraham Jolly",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.19.0",
     "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "mongodb": "^3.6.0"
+  },
+  "devDependencies": {
     "nodemon": "^2.0.4"
   }
 }
