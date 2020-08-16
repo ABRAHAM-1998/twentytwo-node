@@ -7,7 +7,7 @@ const db = require('../database/dbmongo')
 
 // ===============================LOGIN-ROUTE================================
 router.login = (req, res) => {
-    console.log(req.body)
+    // console.log(req.body)
         db.getDB().collection('userdata').findOne({ username: req.body.username, password: req.body.password },{ projection: { mobile:0,dob:0,imgurl:0,email:0, repassword: 0 }}, (err, result) => {
         if (err)
             throw err;

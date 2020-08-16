@@ -5,7 +5,7 @@ function token(req,res,next){
         const bearerToken = bearerHeader.split(" ");
          const tokenset = bearerToken[0];
          req.token = tokenset;
-         console.log('middleware success',tokenset)
+        //  console.log('middleware success',tokenset)
         
         next();
         

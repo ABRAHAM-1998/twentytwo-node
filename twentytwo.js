@@ -28,11 +28,12 @@ app.post("/api/register",router.register);
 app.post("/api/getposts",token,router1.getposts);
 app.post("/api/frndSearch", router2.searchFrfnd);
 app.post("/api/userp",router2.profile);
-app.post("/api/upload",router2.uploadimage)
-app.post("/api/newpost",router1.newpost)
+app.post("/api/upload",router2.uploadimage);
+app.post("/api/newpost",router1.newpost);
+app.post('/api/friends',router2.friendList);
 
 
-app.get("*",token,router.wildcard);
+app.get("*",router.wildcard);
 
 
 // database

@@ -17,7 +17,7 @@ router2.searchFrfnd = (req, res)=>{
     })
 }
 router2.profile = (req, res)=>{
-    db.getDB().collection('userdata').findOne({ _id: ObjectId(req.body.pdata) }, { projection: { _id: 0, password: 0, repassword: 0 } }, (err, result) => {
+    db.getDB().collection('userdata').findOne({ _id: ObjectId(req.body.id) }, { projection: { _id: 0, password: 0, repassword: 0 } }, (err, result) => {
         if (err) {
             throw err;
         } else {
@@ -32,7 +32,7 @@ router2.profile = (req, res)=>{
     })
 }
 router2.uploadimage = (req, res)=>{
-    console.log(req.body.pdata)
+    // console.log(req.body.pdata)
     db.getDB().collection('userdata').updateOne({ _id: ObjectId(req.body.id) }, { $set: { imgurl: req.body.img } }, (err, result) => {
         if (err)
             throw err;
@@ -40,6 +40,13 @@ router2.uploadimage = (req, res)=>{
             res.json({ apistatus: true, arrMsg: ['success'] });
             // console.log('succcesss',result)
         }
+    })
+}
+
+router2.friendList = (req,res)=>{
+    db.getDB().collection('userdata').find({},{projection:{password:0,repassword:0,email:0,dob:0,mobile:0}}).sort({name:1}).toArray((err,result)=>{
+        if(err) throw err;
+        res.json({apistatus:true,data:result})
     })
 }
 

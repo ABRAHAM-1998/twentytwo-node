@@ -7,7 +7,7 @@ const { ObjectId } = require('mongodb');
 
 // ==============================GET-POSTS-ROUTE================================
 router1.getposts = (req, res) => {
-    console.log(req.headers)
+    // console.log(req.headers)
 
     token1 = req.headers["authorization"]
     jwt.verify(req.token, 'kuttuzhrtshgsdugdsudysguydstgdyusdysudfy',  (err, decoded) =>{
