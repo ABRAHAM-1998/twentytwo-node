@@ -58,5 +58,32 @@ router1.newpost = (req, res) => {
         }
     })
 }
+router1.userpost = (req, res)=>{
+    let data={
+    }
+                db.getDB().collection('userdata').find({_id:ObjectId(req.body.id)}).toArray((errr, result) => {
+                    // data = result ;
+                    if (errr) throw errr;
+    
+                     db.getDB().collection('posts').find({ key:ObjectId(req.body.id) }).toArray((err,resul)=>{
+                        // data.append(result,resul)
+                         Object.assign(data,{usrdata:result,post:resul})
+                    res.json({data})
+
+                    });
+                    // console.log(element.userdata)
+
+
+            })  
+    
+}
+router1.postdelete = (req,res)=>{
+    db.getDB().collection('posts').deleteOne({_id:ObjectId(req.body.key)},(err,result)=>{
+        // console.log(result)
+        if(err) throw err;
+
+        res.json({apistatus:true, statusMsg:'succesfully deleted'})
+    })
+}
 
 module.exports = router1;

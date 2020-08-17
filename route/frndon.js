@@ -17,7 +17,7 @@ router2.searchFrfnd = (req, res)=>{
     })
 }
 router2.profile = (req, res)=>{
-    db.getDB().collection('userdata').findOne({ _id: ObjectId(req.body.id) }, { projection: { _id: 0, password: 0, repassword: 0 } }, (err, result) => {
+    db.getDB().collection('userdata').findOne({ _id: ObjectId(req.body.id) }, { projection: { password: 0, repassword: 0 } }, (err, result) => {
         if (err) {
             throw err;
         } else {
