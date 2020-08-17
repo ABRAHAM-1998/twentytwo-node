@@ -3,7 +3,7 @@ const { ObjectId } = require("mongodb");
 const  MongoClient  = require("mongodb").MongoClient;
 const ObjectID = require('mongodb').ObjectID;
 const dbname = 'twentytwo';
-const url = "mongodb://localhost:27017";
+const url = 'mongodb+srv://K1u2t3t4u5:6quDurZRz0kJG5bG@twentytwo.d0ccj.mongodb.net/<dbname>?retryWrites=true&w=majority'
 const mongotype = { useUnifiedTopology: true };
 const state = {
     db : null
