@@ -34,7 +34,15 @@ app.post("/api/upload",router2.uploadimage);
 app.post("/api/newpost",router1.newpost);
 app.post('/api/friends',router2.friendList);
 app.post('/api/userpost',router1.userpost);
-app.post('/api/postdelete',router1.postdelete)
+app.post('/api/postdelete',router1.postdelete);
+
+app.post('/api/request',router2.request);
+app.post('/api/requestedin',router2.showreqst);
+app.post('/api/requestedout',router2.requestedlist);
+app.post('/api/cancelreq',router2.cancelreq);
+
+app.post('/api/acceptreq',router2.acceptreq);
+
 
 
 app.get("*",router.wildcard);
