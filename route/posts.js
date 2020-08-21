@@ -10,7 +10,7 @@ router1.getposts = (req, res) => {
     // console.log(req.headers)
 
     token1 = req.headers["authorization"]
-    jwt.verify(req.token, 'kuttuzhrtshgsdugdsudysguydstgdyusdysudfy',  (err, decoded) =>{
+    jwt.verify(req.token, 'kuttuzhrtshgsdugdsudysguydstgdyusdysudfy', (err, decoded) => {
         if (err)
             throw err;
         else {
@@ -24,65 +24,82 @@ router1.getposts = (req, res) => {
             //     });
 
             // })
-            db.getDB().collection('posts').aggregate([
-                { $lookup:
-                  {
-                    from: 'userdata',
-                    localField: 'key',
-                    foreignField: '_id',
-                    as: 'postdetails'
-                  }
-                }
-              ]).sort( { date: -1 } ).toArray((err, result)=> {
-                if (err) throw err;
-                res.json({ apistatus: true, arrMsg: ['success post saved'], data: result });
-              });
+            // db.getDB().collection('posts').aggregate([
+            //     { $lookup:
+            //       {
+            //         from: 'userdata',
+            //         localField: 'key',
+            //         foreignField: '_id',
+            //         as: 'postdetails'
+            //       }
+            //     }
+            //   ]).sort( { date: -1 } ).toArray((err, result)=> {
+            //     if (err) throw err;
+            //     res.json({ apistatus: true, arrMsg: ['success post saved'], data: result });
+            //   });
+                db.getDB().collection('userdata').findOne({ _id: ObjectId(req.body.id) }, { projection: { password: 0, repassword: 0, email: 0, dob: 0, mobile: 0, imgurl: 0 } }, (err, result) => {
+                    if (err) throw err;
+                    else {
+                        db.getDB().collection('posts').find({ 'key': { $in: result.friends } }, { projection: { password: 0, repassword: 0, email: 0, dob: 0, mobile: 0, requested: 0 } }).toArray((err, result) => {
+                            res.json({ data: result, apistatus: true })
+                        })
+                    }
+               
+            });
         }
     });
 }
 // ==============================CREATE-POST-ROUTE================================
 router1.newpost = (req, res) => {
-    var data = {
-        key: ObjectId(req.body.id),
-        location: req.body.location,
-        Description: req.body.Description,
-        image: req.body.image,
-        date: req.body.date
-    }
 
-    db.getDB().collection('posts').insertOne(data, (err, result) => {
-        if (err)
-            throw err;
-        else {
-            res.json({ apistatus: true, arrMsg: ['success post saved'] });
-        }
-    })
-}
-router1.userpost = (req, res)=>{
-    let data={
-    }
-                db.getDB().collection('userdata').find({_id:ObjectId(req.body.id)}).toArray((errr, result) => {
-                    // data = result ;
-                    if (errr) throw errr;
-    
-                     db.getDB().collection('posts').find({ key:ObjectId(req.body.id) }).toArray((err,resul)=>{
-                        // data.append(result,resul)
-                         Object.assign(data,{usrdata:result,post:resul})
-                    res.json({data})
-
-                    });
-                    // console.log(element.userdata)
-
-
-            })  
-    
-}
-router1.postdelete = (req,res)=>{
-    db.getDB().collection('posts').deleteOne({_id:ObjectId(req.body.key)},(err,result)=>{
-        // console.log(result)
+    db.getDB().collection('userdata').findOne({_id:ObjectId(req.body.id)},(err,result)=>{
+        console.log(result.name)
         if(err) throw err;
+        var data = {
+            key: ObjectId(req.body.id),
+            location: req.body.location,
+            Description: req.body.Description,
+            image: req.body.image,
+            date: req.body.date,
+            propic:result.imgurl,
+            name:result.name,
+            username:result.username
+        }
+        db.getDB().collection('posts').insertOne(data, (err, result) => {
+            if (err)
+                throw err;
+            else {
+                res.json({ apistatus: true, arrMsg: ['success post saved'] });
+            }
+        })
+    })
 
-        res.json({apistatus:true, statusMsg:'succesfully deleted'})
+}
+router1.userpost = (req, res) => {
+    let data = {
+    }
+    db.getDB().collection('userdata').find({ _id: ObjectId(req.body.id) }).toArray((errr, result) => {
+        // data = result ;
+        if (errr) throw errr;
+
+        db.getDB().collection('posts').find({ key: ObjectId(req.body.id) }).toArray((err, resul) => {
+            // data.append(result,resul)
+            Object.assign(data, { usrdata: result, post: resul })
+            res.json({ data })
+
+        });
+        // console.log(element.userdata)
+
+
+    })
+
+}
+router1.postdelete = (req, res) => {
+    db.getDB().collection('posts').deleteOne({ _id: ObjectId(req.body.key) }, (err, result) => {
+        // console.log(result)
+        if (err) throw err;
+
+        res.json({ apistatus: true, statusMsg: 'succesfully deleted' })
     })
 }
 
