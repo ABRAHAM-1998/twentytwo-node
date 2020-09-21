@@ -40,7 +40,7 @@ router1.getposts = (req, res) => {
                 db.getDB().collection('userdata').findOne({ _id: ObjectId(req.body.id) }, { projection: { password: 0, repassword: 0, email: 0, dob: 0, mobile: 0, imgurl: 0 } }, (err, result) => {
                     if (err) throw err;
                     else {
-                        db.getDB().collection('posts').find({ 'key': { $in: result.friends } }, { projection: { password: 0, repassword: 0, email: 0, dob: 0, mobile: 0, requested: 0 } }).sort({date:-1}).toArray((err, result) => {
+                        db.getDB().collection('posts').find({ 'key': { $in: result.friends } }, { projection: { password: 0, repassword: 0, email: 0, dob: 0, mobile: 0, requested: 0 } }).toArray((err, result) => {
                             res.json({ data: result, apistatus: true })
                         })
                     }
