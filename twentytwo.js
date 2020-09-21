@@ -16,13 +16,15 @@ const token =require("./route/middleware");
 
 app.use(bodyParser.json({ limit: '1mb' }));
 app.use(express.json({ limit: '1mb' }));
-app.use(express.urlencoded({ limit: '1mb', extended: true }));
+app.use(express.urlencoded({ limit: '1mb', extended: true ,useUnifiedTopology:true}));
 app.use(cors())
 
 
 app.use(require("./route/login-register"));
 app.use(require('./route/posts'));
 app.use(require('./route/frndon'));
+app.use(require("./route/chat"));
+
 
 // ROUTESs  *%%%
 app.post("/api/login",router.login);
@@ -62,4 +64,16 @@ db.connect((err) => {
 });
 
 const PORT = process.env.PORT || 4201;
-app.listen(PORT,console.log('PORT RUNNING ON ::::::4201 :::::'));
+const server = app.listen(PORT,console.log('PORT RUNNING ON ::::::4201 :::::'));
+// const client = require('socket.io').listen(app).sockets;
+// var io = require('socket.io').listen(server);
+// io.sockets.on('connection', function (socket) {
+//     console.log('hsss connected')
+
+//     socket.emit('output', [{ messages: 'world' }]);
+//     socket.on('input', function (data) {
+//       console.log(data);
+//       console.log('hsss connected')
+//     });
+//   })
+module.exports = {server   }
