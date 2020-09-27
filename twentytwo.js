@@ -23,7 +23,6 @@ app.use(cors())
 app.use(require("./route/login-register"));
 app.use(require('./route/posts'));
 app.use(require('./route/frndon'));
-app.use(require("./route/chat"));
 
 
 // ROUTESs  *%%%
@@ -65,15 +64,20 @@ db.connect((err) => {
 
 const PORT = process.env.PORT || 4201;
 const server = app.listen(PORT,console.log('PORT RUNNING ON ::::::4201 :::::'));
-// const client = require('socket.io').listen(app).sockets;
-// var io = require('socket.io').listen(server);
-// io.sockets.on('connection', function (socket) {
-//     console.log('hsss connected')
+var io = require('socket.io').listen(server);
+io.on('connection',(socket)=>{
+  socket.on('join', function(data){
+    socket.join(data.room);
+    io.emit('new user joined', {user:data.user, message:'has joined  room.'});
+  });
+  socket.on('leave', function(data){
+    io.emit('left room', {user:data.user, message:'has left room.'});
+    socket.leave(data.room);
+  });
 
-//     socket.emit('output', [{ messages: 'world' }]);
-//     socket.on('input', function (data) {
-//       console.log(data);
-//       console.log('hsss connected')
-//     });
-//   })
+ socket.on('message',function(data){
+    io.in(data.room).emit('new message', {user:data.user, message:data.message});
+  })
+});
+
 module.exports = {server   }

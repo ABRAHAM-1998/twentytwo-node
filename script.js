@@ -1,34 +1,22 @@
-const socket = io('http://localhost:4201')
-const messageContainer = document.getElementById('message-container')
-const messageForm = document.getElementById('send-container')
-const messageInput = document.getElementById('message-input')
+var express = require('express');
+var app = express();
+var http = require('http');
+var port = '4201'
+app.set('port', port);
+var server = http.createServer(app);
+var io = require('socket.io').listen(server);
+io.on('connection',(socket)=>{
+  socket.on('join', function(data){
+    socket.join(data.room);
+    io.emit('new user joined', {user:data.user, message:'has joined  room.'});
+  });
+  socket.on('leave', function(data){
+    io.emit('left room', {user:data.user, message:'has left room.'});
+    socket.leave(data.room);
+  });
 
-const name = prompt('What is your name?')
-appendMessage('You joined')
-socket.emit('new-user', name)
-
-socket.on('chat-message', data => {
-  appendMessage(`${data.name}: ${data.message}`)
-})
-
-socket.on('user-connected', name => {
-  appendMessage(`${name} connected`)
-})
-
-socket.on('user-disconnected', name => {
-  appendMessage(`${name} disconnected`)
-})
-
-messageForm.addEventListener('submit', e => {
-  e.preventDefault()
-  const message = messageInput.value
-  appendMessage(`You: ${message}`)
-  socket.emit('send-chat-message', message)
-  messageInput.value = ''
-})
-
-function appendMessage(message) {
-  const messageElement = document.createElement('div')
-  messageElement.innerText = message
-  messageContainer.append(messageElement)
-}
+ socket.on('message',function(data){
+    io.in(data.room).emit('new message', {user:data.user, message:data.message});
+  })
+});
+server.listen(port);
