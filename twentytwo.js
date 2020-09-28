@@ -68,10 +68,10 @@ var io = require('socket.io').listen(server);
 io.on('connection',(socket)=>{
   socket.on('join', function(data){
     socket.join(data.room);
-    io.emit('new user joined', {user:data.user, message:'has joined  room.'});
+    io.emit('new user joined', {user:data.user, message:'has joined  twentytwo global chat....\n thanks for join'});
   });
   socket.on('leave', function(data){
-    io.emit('left room', {user:data.user, message:'has left room.'});
+    io.emit('left room', {user:data.user, message:'has left chat.'});
     socket.leave(data.room);
   });
 
