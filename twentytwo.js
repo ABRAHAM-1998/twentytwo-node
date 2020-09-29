@@ -68,7 +68,7 @@ var io = require('socket.io').listen(server);
 io.on('connection', (socket) => {
   socket.on('join', function (data) {
     socket.join(data.room);
-    db.getDB().collection('chats').find({}).sort({$natural: -1}).limit(50).toArray((err, res) => {
+    db.getDB().collection('chats').find({}).sort({ $natural: -1 }).limit(50).toArray((err, res) => {
       io.emit('new user joined', res);
 
     })
@@ -79,22 +79,31 @@ io.on('connection', (socket) => {
   });
 
   socket.on('message', function (data) {
-    if(data.message !== ''){
+    if (data.message !== '') {
       db.getDB().collection('chats').insertOne({ user: data.user, message: data.message, date: data.date }, (err, res) => {
         if (err)
           throw err;
         else {
-  
+
         }
         io.in(data.room).emit('new message', data);
-  
-  
+
       })
-    }else{
+    } else {
       console.log("empty messsage")
     }
-  
+
+  })
+// _____________________________________________________________________________________________
+
+  socket.on('pvtjoin', (data) => {
+    socket.join(data.id)
+    io.in(data.id).emit(data.id,data)
+    console.log(data.id)
+
   })
 });
+
+
 
 module.exports = { server }
