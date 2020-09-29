@@ -68,7 +68,7 @@ var io = require('socket.io').listen(server);
 io.on('connection', (socket) => {
   socket.on('join', function (data) {
     socket.join(data.room);
-    db.getDB().collection('chats').find({}).sort({ date:1 }).limit(50).toArray((err, res) => {
+    db.getDB().collection('chats').find({}).sort({$natural: -1}).limit(50).toArray((err, res) => {
       io.emit('new user joined', res);
 
     })
