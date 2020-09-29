@@ -79,16 +79,21 @@ io.on('connection', (socket) => {
   });
 
   socket.on('message', function (data) {
-    db.getDB().collection('chats').insert({ user: data.user, message: data.message, date: data.date }, (err, res) => {
-      if (err)
-        throw err;
-      else {
-
-      }
-      io.in(data.room).emit('new message', data);
-
-
-    })
+    if(data.message !== ''){
+      db.getDB().collection('chats').insertOne({ user: data.user, message: data.message, date: data.date }, (err, res) => {
+        if (err)
+          throw err;
+        else {
+  
+        }
+        io.in(data.room).emit('new message', data);
+  
+  
+      })
+    }else{
+      console.log("empty messsage")
+    }
+  
   })
 });
 
