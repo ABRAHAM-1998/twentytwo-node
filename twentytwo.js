@@ -100,47 +100,49 @@ io.on('connection', (socket) => {
 
   socket.on('recievemsg', (message) => {
 
-    // console.log(data)
-    io.emit(message.from, message)
+    console.log(data)
     // console.log("Sending message from "+ message.from + " to " + message.to);
     console.log(message)
-    
+
     if (message.message !== '') {
-      db.getDB().collection('chatprivate').insertOne({ from:message.from,to:message.to,message:message.message}, (err, res) => {
+      db.getDB().collection('chatprivate').insertOne({ from: message.from, to: message.to, message: message.message }, (err, res) => {
         if (err)
           throw err;
         else {
+          
 
         }
-        io.emit(message.from, message)
 
       })
     } else {
       console.log("empty messsage")
     }
+    io.emit(message.from, message)
+
   })
   socket.on('messages', function (data) {
 
     const data1 = {
-      '$or' : [
-        { '$and': [
-          {
-            'to': data.from
-          },{
-            'from': data.to
-          }
-        ]
-      },{
-        '$and': [ 
-          {
-            'to': data.to
-          }, {
-            'from': data.from
-          }
-        ]
-      },
-    ]
-  };
+      '$or': [
+        {
+          '$and': [
+            {
+              'to': data.from
+            }, {
+              'from': data.to
+            }
+          ]
+        }, {
+          '$and': [
+            {
+              'to': data.to
+            }, {
+              'from': data.from
+            }
+          ]
+        },
+      ]
+    };
 
 
     db.getDB().collection('chatprivate').find(data1).sort({ $natural: -1 }).limit(50).toArray((err, res) => {
