@@ -98,12 +98,55 @@ io.on('connection', (socket) => {
   })
   // _____________________________________________________________________________________________
 
-  socket.on('pvtjoin', (data) => {
-    socket.join(data.id)
-    io.in(data.id).emit(data.id, data)
-    console.log(data.id)
+  socket.on('recievemsg', (message) => {
 
+    // console.log(data)
+    io.emit(message.from, message)
+    // console.log("Sending message from "+ message.from + " to " + message.to);
+    console.log(message)
+    
+    if (message.message !== '') {
+      db.getDB().collection('chatprivate').insertOne({ from:message.from,to:message.to,message:message.message}, (err, res) => {
+        if (err)
+          throw err;
+        else {
+
+        }
+        io.emit(message.from, message)
+
+      })
+    } else {
+      console.log("empty messsage")
+    }
   })
+  socket.on('messages', function (data) {
+
+    const data1 = {
+      '$or' : [
+        { '$and': [
+          {
+            'to': data.from
+          },{
+            'from': data.to
+          }
+        ]
+      },{
+        '$and': [ 
+          {
+            'to': data.to
+          }, {
+            'from': data.from
+          }
+        ]
+      },
+    ]
+  };
+
+
+    db.getDB().collection('chatprivate').find(data1).sort({ $natural: -1 }).limit(50).toArray((err, res) => {
+      io.emit(data.from, res);
+    })
+  });
 });
 
 
