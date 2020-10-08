@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const bodyParser = require("body-parser");
 var cors = require('cors')
+const { ObjectId } = require("mongodb");
 
 const db = require('./database/dbmongo');
 const router = require('./route/login-register');
@@ -44,6 +45,7 @@ app.post('/api/cancelreq', router2.cancelreq);
 
 app.post('/api/acceptreq', router2.acceptreq);
 app.post("/api/deleteGchat", router4.deletechat);
+app.post("/api/onlinecheck",router4.onlinecheck);
 
 
 
@@ -66,10 +68,25 @@ db.connect((err) => {
 
 const PORT = process.env.PORT || 4201;
 const server = app.listen(PORT, console.log('PORT RUNNING ON ::::::4201 :::::'));
+
+
 var io = require('socket.io').listen(server);
+
+
 io.on('connection', (socket) => {
   socket.on('join', function (data) {
-    socket.join(data.room);
+    console.log(data, 'connecterd ============')
+
+    db.getDB().collection('userdata').updateOne({ _id: ObjectId(data.localid) }, { $set: { socketId: socket.id, online: 'online' } }, (err, result) => {
+      if (err)
+        throw err;
+      else {
+
+        console.log('succcesss')
+      }
+    })
+
+    socket.join();
     db.getDB().collection('chats').find({}).sort({ $natural: -1 }).limit(50).toArray((err, res) => {
       io.emit('new user joined', res);
 
@@ -100,24 +117,21 @@ io.on('connection', (socket) => {
 
   socket.on('recievemsg', (message) => {
 
-    console.log(data)
+    // console.log(data)
     // console.log("Sending message from "+ message.from + " to " + message.to);
-    console.log(message)
 
     if (message.message !== '') {
       db.getDB().collection('chatprivate').insertOne({ from: message.from, to: message.to, message: message.message }, (err, res) => {
         if (err)
           throw err;
         else {
-          
-
+          io.emit(message.to, message)
         }
 
       })
     } else {
       console.log("empty messsage")
     }
-    io.emit(message.from, message)
 
   })
   socket.on('messages', function (data) {
@@ -149,6 +163,51 @@ io.on('connection', (socket) => {
       io.emit(data.from, res);
     })
   });
+
+
+  socket.on('typing', (data) => {
+    io.emit(data.to, data)
+    console.log('typing')
+  })
+
+
+  socket.on('disconnect', function (data) {
+    console.log('user disconnected', data, socket.id);
+    let date = new Date()
+
+    db.getDB().collection('userdata').updateOne({ socketId: socket.id }, { $set: { online :date} }, (err, result) => {
+      if (err)
+        throw err;
+      else {
+
+        console.log('succcesss disconnected')
+      }
+    });
+  });
+
+  // // socket.on('onlinecheck',(data)=>{
+  // //   console.log(data)
+	// // 	return new Promise( async (resolve, reject) => {
+	// // 		try {
+	// // 			db.getDB().collection('userdata').findOne( { _id : ObjectId(data.to)},{ projection: { mobile: 0, dob: 0, imgurl: 0, email: 0, password: 0, repassword: 0,friends:0,sendreq:0,requested:0,name:0,username:0,socketid:0,_id:0,socketId:0 }}, (err, result) => {
+	// // 				if( err ){
+	// // 					reject(err);
+	// // 				}
+  // //         console.log(result);
+  // //         io.emit(data.from, result)
+	// // 			});	
+	// // 		} catch (error) {
+	// // 			reject(error)
+	// // 		}
+	// // 	});
+
+  // })
+
+
+
+
+
+
 });
 
 
