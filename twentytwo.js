@@ -45,7 +45,7 @@ app.post('/api/cancelreq', router2.cancelreq);
 
 app.post('/api/acceptreq', router2.acceptreq);
 app.post("/api/deleteGchat", router4.deletechat);
-app.post("/api/onlinecheck",router4.onlinecheck);
+app.post("/api/onlinecheck", router4.onlinecheck);
 
 
 
@@ -76,19 +76,26 @@ var io = require('socket.io').listen(server);
 io.on('connection', (socket) => {
   socket.on('join', function (data) {
     console.log(data, 'connecterd ============')
+    if (data.localid !== '') {
+      db.getDB().collection('userdata').updateOne({ _id: ObjectId(data.localid) }, { $set: { socketId: socket.id, online: 'online' } }, (err, result) => {
+        if (err)
+          throw err;
+        else {
 
-    db.getDB().collection('userdata').updateOne({ _id: ObjectId(data.localid) }, { $set: { socketId: socket.id, online: 'online' } }, (err, result) => {
-      if (err)
-        throw err;
-      else {
-
-        console.log('succcesss')
-      }
-    })
+          console.log('succcesss')
+        }
+      })
+    }
 
     socket.join();
     db.getDB().collection('chats').find({}).sort({ $natural: -1 }).limit(50).toArray((err, res) => {
-      io.emit('new user joined', res);
+      if (res) {
+        let check = [{
+          success: true,
+        }, ...res]
+        io.emit('new user joined', check);
+
+      }
 
     })
   });
@@ -99,13 +106,13 @@ io.on('connection', (socket) => {
 
   socket.on('message', function (data) {
     if (data.message !== '') {
-      db.getDB().collection('chats').insertOne({ user: data.user, message: data.message, date: data.date }, (err, res) => {
+      db.getDB().collection('chats').insertOne({ user: data.user, message: data.message, date: data.date, id:data.id }, (err, res) => {
         if (err)
           throw err;
         else {
+          io.in(data.room).emit('new message', res.ops[0]);
 
         }
-        io.in(data.room).emit('new message', data);
 
       })
     } else {
@@ -175,7 +182,7 @@ io.on('connection', (socket) => {
     console.log('user disconnected', data, socket.id);
     let date = new Date()
 
-    db.getDB().collection('userdata').updateOne({ socketId: socket.id }, { $set: { online :date} }, (err, result) => {
+    db.getDB().collection('userdata').updateOne({ socketId: socket.id }, { $set: { online: date } }, (err, result) => {
       if (err)
         throw err;
       else {
@@ -184,27 +191,6 @@ io.on('connection', (socket) => {
       }
     });
   });
-
-  // // socket.on('onlinecheck',(data)=>{
-  // //   console.log(data)
-	// // 	return new Promise( async (resolve, reject) => {
-	// // 		try {
-	// // 			db.getDB().collection('userdata').findOne( { _id : ObjectId(data.to)},{ projection: { mobile: 0, dob: 0, imgurl: 0, email: 0, password: 0, repassword: 0,friends:0,sendreq:0,requested:0,name:0,username:0,socketid:0,_id:0,socketId:0 }}, (err, result) => {
-	// // 				if( err ){
-	// // 					reject(err);
-	// // 				}
-  // //         console.log(result);
-  // //         io.emit(data.from, result)
-	// // 			});	
-	// // 		} catch (error) {
-	// // 			reject(error)
-	// // 		}
-	// // 	});
-
-  // })
-
-
-
 
 
 
